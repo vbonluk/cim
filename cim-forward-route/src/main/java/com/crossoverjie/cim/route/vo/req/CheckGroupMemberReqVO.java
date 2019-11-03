@@ -4,13 +4,14 @@ import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotNull;
 
-public class AddGroupMemberReqVo extends BaseGroupReqVO{
+public class CheckGroupMemberReqVO extends BaseGroupReqVO{
 
     @Override
     public String toString() {
-        return "AddGroupMemberReqVo{" +
+        return "CheckGroupMemberReqVO{" +
                 "chatGroupId='" + this.getChatGroupId() + '\'' +
                 ", userId=" + this.getUserId() +
                 '}';
     }
+
 }

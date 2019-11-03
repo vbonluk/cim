@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  *         Date: 2019/11/01 15:56
  * @since JDK 1.8
  */
-public class CreateGroupReqVo {
+public class CreateGroupReqVo extends BaseGroupReqVO{
     @NotNull(message = "创建人 userId 不能为空")
     @ApiModelProperty(required = true, value = "userId", example = "1545574049323")
     private Long userId ;

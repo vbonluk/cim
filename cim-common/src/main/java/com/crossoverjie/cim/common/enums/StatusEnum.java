@@ -35,6 +35,9 @@ public enum StatusEnum {
 
     /** 群组不存在 */
     CHAT_GROUP_NO_EXIST("6050", "群组不存在！"),
+
+    /** 权限错误 - 只有群主才能操作 */
+    CHAT_GROUP_NO_PERMISSION("6051", "无权操作群组"),
     ;
 
 

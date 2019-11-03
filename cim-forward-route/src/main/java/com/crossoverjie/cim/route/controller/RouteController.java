@@ -138,6 +138,85 @@ public class RouteController {
         return BaseResponse.create(null, StatusEnum.SUCCESS);
     }
 
+    @ApiOperation("群成员主动退出群组 API")
+    @RequestMapping(value = "groupMemberLeaveRoute", method = RequestMethod.POST)
+    @ResponseBody()
+    public BaseResponse groupMemberLeaveRoute(@RequestBody LeaveGroupMemberReqVO leaveGroupMemberReqVO) throws Exception {
+        BaseResponse checkUserAndGroupExist = checkUserAndGroupExist(leaveGroupMemberReqVO);
+        if (checkUserAndGroupExist != null) return checkUserAndGroupExist;
+
+        boolean success = chatGroupService.deleteGroupMember(leaveGroupMemberReqVO.getChatGroupId(), leaveGroupMemberReqVO.getUserId());
+        if (!success)
+            return BaseResponse.create(null, StatusEnum.FAIL);
+
+        return BaseResponse.create(null, StatusEnum.SUCCESS);
+    }
+
+    @ApiOperation("群主将群成员踢出群组 API")
+    @RequestMapping(value = "groupOwnerRemoveGroupMemberRoute", method = RequestMethod.POST)
+    @ResponseBody()
+    public BaseResponse groupOwnerRemoveGroupMemberRoute(@RequestBody GroupOwnerRemoveGroupMemberReqVO groupOwnerRemoveGroupMemberReqVO) throws Exception {
+        BaseResponse checkUserAndGroupExist = checkUserAndGroupExist(groupOwnerRemoveGroupMemberReqVO);
+        if (checkUserAndGroupExist != null) return checkUserAndGroupExist;
+
+        boolean groupAdmin = chatGroupService.isGroupAdmin(groupOwnerRemoveGroupMemberReqVO.getChatGroupId(), groupOwnerRemoveGroupMemberReqVO.getGroupOwnerId());
+        if (!groupAdmin)
+            return BaseResponse.create(null, StatusEnum.CHAT_GROUP_NO_PERMISSION);
+
+        boolean success = chatGroupService.deleteGroupMember(groupOwnerRemoveGroupMemberReqVO.getChatGroupId(), groupOwnerRemoveGroupMemberReqVO.getUserId());
+        if (!success)
+            return BaseResponse.create(null, StatusEnum.FAIL);
+
+        return BaseResponse.create(null, StatusEnum.SUCCESS);
+    }
+
+    @ApiOperation("查询群是否存在该用户 API")
+    @RequestMapping(value = "isGroupMemberExistRoute", method = RequestMethod.POST)
+    @ResponseBody()
+    public BaseResponse isGroupMemberExistRoute(@RequestBody CheckGroupMemberReqVO checkGroupMemberReqVO) throws Exception {
+        BaseResponse checkUserAndGroupExist = checkUserAndGroupExist(checkGroupMemberReqVO);
+        if (checkUserAndGroupExist != null) return checkUserAndGroupExist;
+
+        boolean success = chatGroupService.isGroupMemberExist(checkGroupMemberReqVO.getChatGroupId(), checkGroupMemberReqVO.getUserId());
+        if (!success)
+            return BaseResponse.create(null, StatusEnum.FAIL);
+
+        return BaseResponse.create(null, StatusEnum.SUCCESS);
+    }
+
+    @ApiOperation("解散群 API")
+    @RequestMapping(value = "dismissGroupRoute", method = RequestMethod.POST)
+    @ResponseBody()
+    public BaseResponse dismissGroupRoute(@RequestBody DismissGroupReqVO dismissGroupReqVO) throws Exception {
+        BaseResponse checkUserAndGroupExist = checkUserAndGroupExist(dismissGroupReqVO);
+        if (checkUserAndGroupExist != null) return checkUserAndGroupExist;
+
+        boolean groupAdmin = chatGroupService.isGroupAdmin(dismissGroupReqVO.getChatGroupId(), dismissGroupReqVO.getUserId());
+        if (!groupAdmin)
+            return BaseResponse.create(null, StatusEnum.CHAT_GROUP_NO_PERMISSION);
+
+        boolean success = chatGroupService.dismissGroup(dismissGroupReqVO.getChatGroupId());
+        if (!success)
+            return BaseResponse.create(null, StatusEnum.FAIL);
+
+        return BaseResponse.create(null, StatusEnum.SUCCESS);
+    }
+
+    private BaseResponse checkUserAndGroupExist(BaseGroupReqVO baseGroupReqVO) {
+        if (baseGroupReqVO.getUserId() == null || baseGroupReqVO.getChatGroupId() == null)
+            return BaseResponse.create(null, StatusEnum.FAIL);
+
+        CIMUserInfo cimUserInfo = userInfoCacheService.loadUserInfoByUserId(baseGroupReqVO.getUserId());
+        if (cimUserInfo == null) {
+            return BaseResponse.create(null, StatusEnum.ACCOUNT_NOT_MATCH);
+        }
+
+        boolean isExist = chatGroupService.isChatGroupExist(baseGroupReqVO.getChatGroupId());
+        if (!isExist)
+            return BaseResponse.create(null, StatusEnum.CHAT_GROUP_NO_EXIST);
+        return null;
+    }
+
 
     /**
      * 私聊路由
